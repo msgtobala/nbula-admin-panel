@@ -8,7 +8,7 @@ import {
 } from 'recharts';
 import { 
   Briefcase, Users, TrendingUp, Building2,
-  CheckCircle2, XCircle, Clock
+  CheckCircle2, XCircle, Clock, Rocket
 } from 'lucide-react';
 
 export default function Dashboard() {
@@ -39,14 +39,18 @@ export default function Dashboard() {
   const activeJobs = jobs.filter(job => job.isActive).length;
   const activelyHiring = jobs.filter(job => job.isActivelyHiring).length;
   
-  const departmentStats = jobs.reduce((acc, job) => {
-    acc[job.department] = (acc[job.department] || 0) + 1;
+  // Calculate skills statistics
+  const skillStats = jobs.reduce((acc, job) => {
+    job.skills.forEach(skill => {
+      acc[skill] = (acc[skill] || 0) + 1;
+    });
     return acc;
   }, {} as Record<string, number>);
 
-  const departmentData = Object.entries(departmentStats)
+  const skillData = Object.entries(skillStats)
     .map(([name, value]) => ({ name, value }))
-    .sort((a, b) => b.value - a.value);
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 10); // Show top 10 skills
 
   const statusData = [
     { name: 'Active', value: activeJobs },
@@ -78,9 +82,9 @@ export default function Dashboard() {
       bgColor: 'bg-yellow-50'
     },
     {
-      name: 'Departments',
-      value: Object.keys(departmentStats).length,
-      icon: Building2,
+      name: 'Total Skills',
+      value: Object.keys(skillStats).length,
+      icon: Rocket,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50'
     }
@@ -124,15 +128,44 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Jobs by Department</h2>
-          <div className="h-80">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Top 10 Most Requested Skills</h2>
+          <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={departmentData} layout="vertical" margin={{ left: 100 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis dataKey="name" type="category" />
-                <Tooltip />
-                <Bar dataKey="value" fill="#4F46E5" />
+              <BarChart 
+                data={skillData} 
+                margin={{ top: 5, right: 30, left: 40, bottom: 50 }}
+                barSize={40}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis 
+                  dataKey="name"
+                  angle={-45}
+                  textAnchor="end"
+                  height={50}
+                  interval={0}
+                  tick={{ fontSize: 12 }}
+                  stroke="#6B7280"
+                />
+                <YAxis 
+                  allowDecimals={false}
+                  domain={[0, 'dataMax']}
+                  padding={{ top: 10 }}
+                  stroke="#6B7280"
+                />
+                <Tooltip 
+                  formatter={(value) => [`${value} jobs`, 'Frequency']}
+                  contentStyle={{
+                    backgroundColor: 'white',
+                    border: '1px solid #E5E7EB',
+                    borderRadius: '6px',
+                    padding: '8px'
+                  }}
+                />
+                <Bar 
+                  dataKey="value" 
+                  fill="#4F46E5"
+                  radius={[4, 4, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -140,7 +173,7 @@ export default function Dashboard() {
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Job Status Distribution</h2>
-          <div className="h-80">
+          <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie

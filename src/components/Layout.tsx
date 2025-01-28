@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Briefcase, Settings, Bell, User } from 'lucide-react';
+import { LayoutDashboard, Bell, Settings, User, Rocket } from 'lucide-react';
 
 export default function Layout() {
   return (
@@ -10,8 +10,14 @@ export default function Layout() {
           <div className="flex justify-between h-16">
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
-                <Briefcase className="h-8 w-8 text-blue-600" />
-                <span className="ml-2 text-xl font-bold text-gray-900">Admin Panel</span>
+                <div className="flex items-center gap-2">
+                  <div className="bg-blue-600 text-white p-1.5 rounded">
+                    <Rocket className="h-5 w-5" />
+                  </div>
+                  <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">
+                    Nbula
+                  </span>
+                </div>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                 <NavLink
