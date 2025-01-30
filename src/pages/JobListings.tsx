@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, doc, deleteDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Job } from '../types/job';
 import JobList from '../components/JobList';
@@ -41,13 +41,26 @@ export default function JobListings() {
 
   const handleAddJob = async (jobData: Partial<Job>) => {
     try {
-      await addDoc(collection(db, 'jobs'), {
-        ...jobData,
-        interviewType: typeof jobData.interviewType === 'object' ? jobData.interviewType.value : jobData.interviewType,
+      // Ensure all required fields are present and properly formatted
+      const formattedData = {
+        title: jobData.title || '',
+        experience: Number(jobData.experience) || 0,
+        location: jobData.location || '',
+        description: jobData.description || '',
+        datePosted: Timestamp.fromDate(new Date()),
+        department: jobData.department || '',
+        salary: Number(jobData.salary) || 0,
         skills: (jobData.skills || []).map(skill => 
           typeof skill === 'object' ? skill.value : skill
         ),
-      });
+        interviewType: typeof jobData.interviewType === 'object' 
+          ? jobData.interviewType.value 
+          : (jobData.interviewType || 'Online'),
+        isActive: Boolean(jobData.isActive),
+        isActivelyHiring: Boolean(jobData.isActivelyHiring),
+      };
+
+      await addDoc(collection(db, 'jobs'), formattedData);
       await fetchJobs();
       setIsAddingJob(false);
       toast.success('Job added successfully');
@@ -61,13 +74,27 @@ export default function JobListings() {
     if (!selectedJob) return;
     
     try {
-      await updateDoc(doc(db, 'jobs', selectedJob.id), {
-        ...jobData,
-        interviewType: typeof jobData.interviewType === 'object' ? jobData.interviewType.value : jobData.interviewType,
+      // Ensure all fields are properly formatted
+      const formattedData = {
+        title: jobData.title || selectedJob.title,
+        experience: Number(jobData.experience) || selectedJob.experience,
+        location: jobData.location || selectedJob.location,
+        description: jobData.description || selectedJob.description,
+        department: jobData.department || selectedJob.department,
+        salary: Number(jobData.salary) || selectedJob.salary,
         skills: (jobData.skills || []).map(skill => 
           typeof skill === 'object' ? skill.value : skill
         ),
-      });
+        interviewType: typeof jobData.interviewType === 'object' 
+          ? jobData.interviewType.value 
+          : (jobData.interviewType || selectedJob.interviewType),
+        isActive: jobData.isActive !== undefined ? jobData.isActive : selectedJob.isActive,
+        isActivelyHiring: jobData.isActivelyHiring !== undefined 
+          ? jobData.isActivelyHiring 
+          : selectedJob.isActivelyHiring,
+      };
+
+      await updateDoc(doc(db, 'jobs', selectedJob.id), formattedData);
       await fetchJobs();
       setSelectedJob(null);
       setIsEditingJob(false);

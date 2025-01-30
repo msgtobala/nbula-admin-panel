@@ -5,7 +5,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import CreatableSelect from 'react-select/creatable';
 import { Job, departments, SkillOption } from '../types/job';
-import { Save, X, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Save, X, ToggleLeft, ToggleRight, Bold, Italic, List, Link as LinkIcon, Heading1, Heading2, Heading3 } from 'lucide-react';
 import { fetchSkills, addSkill } from '../lib/firebase';
 import { toast } from 'react-hot-toast';
 import Select from 'react-select';
@@ -38,12 +38,15 @@ export default function JobForm({ onSubmit, onCancel, initialData }: JobFormProp
       StarterKit,
       Link.configure({
         openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-blue-600 hover:text-blue-800 underline',
+        },
       }),
     ],
     content: initialData?.description || '',
     editorProps: {
       attributes: {
-        class: 'prose max-w-none focus:outline-none min-h-[150px] text-gray-900 text-sm',
+        class: 'prose prose-sm max-w-none focus:outline-none min-h-[150px] text-gray-900',
       },
     },
   });
@@ -79,13 +82,13 @@ export default function JobForm({ onSubmit, onCancel, initialData }: JobFormProp
   };
 
   const onFormSubmit = async (data: Partial<Job>) => {
+    if (!editor) return;
+
     const formData = {
       ...data,
-      description: editor?.getHTML() || '',
+      description: editor.getHTML(),
       datePosted: new Date(),
-      // Ensure interviewType is a string
       interviewType: typeof data.interviewType === 'object' ? data.interviewType.value : data.interviewType,
-      // Ensure skills are strings
       skills: (data.skills || []).map(skill => typeof skill === 'object' ? skill.value : skill),
     };
     await onSubmit(formData);
@@ -94,6 +97,14 @@ export default function JobForm({ onSubmit, onCancel, initialData }: JobFormProp
   const inputClassName = "mt-1 block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 text-sm transition-colors duration-200 ease-in-out placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-0 focus:border-blue-500";
   const selectClassName = "!border-gray-200 !bg-gray-50 !min-h-[42px] hover:!border-gray-300 transition-colors duration-200 ease-in-out";
   const selectFocusClassName = "!border-blue-500 !ring-0 !shadow-none !bg-white";
+
+  const addLink = () => {
+    if (!editor) return;
+    const url = window.prompt('Enter URL:');
+    if (url) {
+      editor.chain().focus().setLink({ href: url }).run();
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
@@ -304,9 +315,87 @@ export default function JobForm({ onSubmit, onCancel, initialData }: JobFormProp
               <div className="col-span-2 space-y-1.5">
                 <label className="block text-sm font-medium text-gray-700">Description</label>
                 <div className="mt-1 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 focus-within:bg-white focus-within:border-blue-500 transition-colors duration-200">
+                  <div className="flex flex-wrap items-center gap-1 border-b border-gray-200 p-2 bg-white">
+                    <div className="flex items-center gap-1 mr-2">
+                      <button
+                        type="button"
+                        onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
+                        className={`p-1.5 rounded hover:bg-gray-100 ${
+                          editor?.isActive('heading', { level: 1 }) ? 'bg-gray-100 text-blue-600' : 'text-gray-600'
+                        }`}
+                        title="Heading 1"
+                      >
+                        <Heading1 className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
+                        className={`p-1.5 rounded hover:bg-gray-100 ${
+                          editor?.isActive('heading', { level: 2 }) ? 'bg-gray-100 text-blue-600' : 'text-gray-600'
+                        }`}
+                        title="Heading 2"
+                      >
+                        <Heading2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}
+                        className={`p-1.5 rounded hover:bg-gray-100 ${
+                          editor?.isActive('heading', { level: 3 }) ? 'bg-gray-100 text-blue-600' : 'text-gray-600'
+                        }`}
+                        title="Heading 3"
+                      >
+                        <Heading3 className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <div className="w-px h-6 bg-gray-200 mx-1" />
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => editor?.chain().focus().toggleBold().run()}
+                        className={`p-1.5 rounded hover:bg-gray-100 ${
+                          editor?.isActive('bold') ? 'bg-gray-100 text-blue-600' : 'text-gray-600'
+                        }`}
+                        title="Bold"
+                      >
+                        <Bold className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => editor?.chain().focus().toggleItalic().run()}
+                        className={`p-1.5 rounded hover:bg-gray-100 ${
+                          editor?.isActive('italic') ? 'bg-gray-100 text-blue-600' : 'text-gray-600'
+                        }`}
+                        title="Italic"
+                      >
+                        <Italic className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => editor?.chain().focus().toggleBulletList().run()}
+                        className={`p-1.5 rounded hover:bg-gray-100 ${
+                          editor?.isActive('bulletList') ? 'bg-gray-100 text-blue-600' : 'text-gray-600'
+                        }`}
+                        title="Bullet List"
+                      >
+                        <List className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={addLink}
+                        className={`p-1.5 rounded hover:bg-gray-100 ${
+                          editor?.isActive('link') ? 'bg-gray-100 text-blue-600' : 'text-gray-600'
+                        }`}
+                        title="Add Link"
+                      >
+                        <LinkIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
                   <style>{`
                     .ProseMirror {
                       padding: 1rem;
+                      min-height: 150px;
                     }
                     .ProseMirror p.is-editor-empty:first-child::before {
                       content: attr(data-placeholder);
@@ -318,11 +407,30 @@ export default function JobForm({ onSubmit, onCancel, initialData }: JobFormProp
                     .ProseMirror:focus {
                       outline: none;
                     }
+                    .ProseMirror ul {
+                      list-style-type: disc;
+                      padding-left: 1.5em;
+                    }
+                    .ProseMirror h1 {
+                      font-size: 1.5em;
+                      font-weight: 600;
+                      margin-top: 1em;
+                      margin-bottom: 0.5em;
+                    }
+                    .ProseMirror h2 {
+                      font-size: 1.25em;
+                      font-weight: 600;
+                      margin-top: 1em;
+                      margin-bottom: 0.5em;
+                    }
+                    .ProseMirror h3 {
+                      font-size: 1.125em;
+                      font-weight: 600;
+                      margin-top: 1em;
+                      margin-bottom: 0.5em;
+                    }
                   `}</style>
-                  <EditorContent 
-                    editor={editor} 
-                    className="prose max-w-none"
-                  />
+                  <EditorContent editor={editor} />
                 </div>
               </div>
 
