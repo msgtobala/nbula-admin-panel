@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
+import { collection, query, getDocs } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 import { Job } from '../types/job';
 import { 
-  MapPin, Calendar, Building2, DollarSign, Video, ChevronDown, ChevronUp, Pencil, Trash2, Clock
+  MapPin, Calendar, Building2, DollarSign, Video, ChevronDown, ChevronUp, 
+  Pencil, Trash2, Clock, Users
 } from 'lucide-react';
 
 interface JobCardProps {
@@ -12,8 +16,24 @@ interface JobCardProps {
 }
 
 export default function JobCard({ job, onEdit, onDelete }: JobCardProps) {
+  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [applicationsCount, setApplicationsCount] = useState(0);
+
+  useEffect(() => {
+    const fetchApplicationsCount = async () => {
+      try {
+        const applicationsRef = collection(db, `jobs/${job.id}/applications`);
+        const querySnapshot = await getDocs(query(applicationsRef));
+        setApplicationsCount(querySnapshot.size);
+      } catch (error) {
+        console.error('Error fetching applications count:', error);
+      }
+    };
+
+    fetchApplicationsCount();
+  }, [job.id]);
 
   const formatSalary = (salary: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -134,6 +154,14 @@ export default function JobCard({ job, onEdit, onDelete }: JobCardProps) {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate(`/jobs/${job.id}/applications`)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-purple-700 bg-purple-50 border border-purple-200 hover:bg-purple-100 transition-all duration-200"
+            >
+              <Users className="w-4 h-4" />
+              {applicationsCount} {applicationsCount === 1 ? 'Application' : 'Applications'}
+            </button>
+
             <button
               onClick={onEdit}
               className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100 transition-all duration-200"

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Bell, Settings, User, Rocket, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Bell, Settings, User, Rocket, Menu, X, Bookmark } from 'lucide-react';
 
 export default function Layout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -45,6 +45,19 @@ export default function Layout() {
                   }
                 >
                   Job Listings
+                </NavLink>
+                <NavLink
+                  to="/saved-applications"
+                  className={({ isActive }) =>
+                    `inline-flex items-center gap-2 px-1 pt-1 text-sm font-medium ${
+                      isActive
+                        ? 'border-b-2 border-blue-500 text-gray-900'
+                        : 'text-gray-500 hover:border-b-2 hover:border-gray-300 hover:text-gray-700'
+                    }`
+                  }
+                >
+                  <Bookmark className="w-4 h-4" />
+                  Saved Applications
                 </NavLink>
               </div>
             </div>
@@ -104,6 +117,19 @@ export default function Layout() {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Job Listings
+            </NavLink>
+            <NavLink
+              to="/saved-applications"
+              className={({ isActive }) =>
+                `block pl-3 pr-4 py-2 text-base font-medium ${
+                  isActive
+                    ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700'
+                    : 'text-gray-600 hover:bg-gray-50 hover:border-l-4 hover:border-gray-300 hover:text-gray-800'
+                }`
+              }
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Saved Applications
             </NavLink>
           </div>
           <div className="pt-4 pb-3 border-t border-gray-200">

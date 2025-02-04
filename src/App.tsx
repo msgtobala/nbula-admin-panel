@@ -4,6 +4,8 @@ import { Toaster } from 'react-hot-toast';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import JobListings from './pages/JobListings';
+import JobApplications from './pages/JobApplications';
+import SavedApplications from './pages/SavedApplications';
 
 function App() {
   return (
@@ -14,6 +16,8 @@ function App() {
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="jobs" element={<JobListings />} />
+          <Route path="jobs/:jobId/applications" element={<JobApplications />} />
+          <Route path="saved-applications" element={<SavedApplications />} />
         </Route>
       </Routes>
     </BrowserRouter>
