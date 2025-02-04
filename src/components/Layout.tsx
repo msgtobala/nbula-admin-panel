@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Bell, Settings, User, Rocket, Menu, X, Bookmark } from 'lucide-react';
+import { LayoutDashboard, Bell, Settings, User, Rocket, Menu, X } from 'lucide-react';
 
 export default function Layout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -49,14 +49,13 @@ export default function Layout() {
                 <NavLink
                   to="/saved-applications"
                   className={({ isActive }) =>
-                    `inline-flex items-center gap-2 px-1 pt-1 text-sm font-medium ${
+                    `inline-flex items-center px-1 pt-1 text-sm font-medium ${
                       isActive
                         ? 'border-b-2 border-blue-500 text-gray-900'
                         : 'text-gray-500 hover:border-b-2 hover:border-gray-300 hover:text-gray-700'
                     }`
                   }
                 >
-                  <Bookmark className="w-4 h-4" />
                   Saved Applications
                 </NavLink>
               </div>

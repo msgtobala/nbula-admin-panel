@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { collection, query, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Application } from '../types/application';
-import { ArrowLeft, Download, Building2, Clock, Phone, Mail, Calendar, Timer, CheckCircle, XCircle, Bookmark } from 'lucide-react';
+import { ArrowLeft, Download, Building2, Clock, Phone, Mail, Calendar, Timer, CheckCircle, XCircle, Bookmark, FileDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'react-hot-toast';
 
@@ -103,6 +103,61 @@ export default function JobApplications() {
     }
   };
 
+  const handleExportCSV = () => {
+    try {
+      // Define CSV headers
+      const headers = [
+        'Full Name',
+        'Email',
+        'Phone',
+        'Current Company',
+        'Experience (Years)',
+        'Notice Period (Months)',
+        'Applied Date',
+        'Status',
+        'Saved For Later',
+        'Resume URL'
+      ];
+
+      // Convert applications to CSV rows
+      const rows = applications.map(app => [
+        app.fullName,
+        app.email,
+        app.phone,
+        app.currentCompany,
+        app.experience,
+        app.noticePeriod,
+        format(app.appliedAt, 'yyyy-MM-dd'),
+        app.status,
+        app.saveForLater ? 'Yes' : 'No',
+        app.resumeUrl
+      ]);
+
+      // Combine headers and rows
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.map(cell => 
+          // Wrap cells containing commas in quotes
+          typeof cell === 'string' && cell.includes(',') ? `"${cell}"` : cell
+        ).join(','))
+      ].join('\n');
+
+      // Create and download the file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${jobTitle.toLowerCase().replace(/\s+/g, '-')}-applications.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success('Applications exported successfully');
+    } catch (error) {
+      console.error('Error exporting applications:', error);
+      toast.error('Failed to export applications');
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
@@ -136,10 +191,23 @@ export default function JobApplications() {
           <ArrowLeft className="w-4 h-4" />
           Back to Jobs
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">Applications for {jobTitle}</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          {applications.length} {applications.length === 1 ? 'application' : 'applications'} received
-        </p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Applications for {jobTitle}</h1>
+            <p className="mt-1 text-sm text-gray-500">
+              {applications.length} {applications.length === 1 ? 'application' : 'applications'} received
+            </p>
+          </div>
+          {applications.length > 0 && (
+            <button
+              onClick={handleExportCSV}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-green-700 bg-green-50 border border-green-200 hover:bg-green-100 transition-all duration-200"
+            >
+              <FileDown className="w-4 h-4" />
+              Export CSV
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="space-y-4">

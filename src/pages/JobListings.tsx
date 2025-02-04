@@ -4,8 +4,9 @@ import { db } from '../lib/firebase';
 import { Job } from '../types/job';
 import JobList from '../components/JobList';
 import JobForm from '../components/JobForm';
-import { Plus } from 'lucide-react';
+import { Plus, FileDown } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { format } from 'date-fns';
 
 export default function JobListings() {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -116,6 +117,67 @@ export default function JobListings() {
     }
   };
 
+  const handleExportJobs = () => {
+    try {
+      // Define CSV headers
+      const headers = [
+        'Title',
+        'Department',
+        'Location',
+        'Experience (Years)',
+        'Salary',
+        'Notice Period (Months)',
+        'Interview Type',
+        'Skills',
+        'Date Posted',
+        'Status',
+        'Hiring Status',
+        'Description'
+      ];
+
+      // Convert jobs to CSV rows
+      const rows = jobs.map(job => [
+        job.title,
+        job.department,
+        job.location,
+        job.experience,
+        job.salary,
+        job.noticePeriod,
+        job.interviewType,
+        job.skills.join('; '),
+        format(job.datePosted, 'yyyy-MM-dd'),
+        job.isActive ? 'Active' : 'Inactive',
+        job.isActivelyHiring ? 'Hiring' : 'Not Hiring',
+        job.description.replace(/<[^>]+>/g, '') // Remove HTML tags from description
+      ]);
+
+      // Combine headers and rows
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.map(cell => 
+          // Wrap cells containing commas or semicolons in quotes
+          typeof cell === 'string' && (cell.includes(',') || cell.includes(';')) 
+            ? `"${cell.replace(/"/g, '""')}"` // Escape quotes by doubling them
+            : cell
+        ).join(','))
+      ].join('\n');
+
+      // Create and download the file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `job-listings-${format(new Date(), 'yyyy-MM-dd')}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success('Jobs exported successfully');
+    } catch (error) {
+      console.error('Error exporting jobs:', error);
+      toast.error('Failed to export jobs');
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex justify-between items-center mb-8">
@@ -123,13 +185,24 @@ export default function JobListings() {
           <h1 className="text-2xl font-bold text-gray-900">Job Listings</h1>
           <p className="mt-1 text-sm text-gray-500">Manage and monitor all job postings</p>
         </div>
-        <button
-          onClick={() => setIsAddingJob(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-        >
-          <Plus className="w-5 h-5" />
-          Add New Job
-        </button>
+        <div className="flex items-center gap-3">
+          {jobs.length > 0 && (
+            <button
+              onClick={handleExportJobs}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-green-700 bg-green-50 border border-green-200 hover:bg-green-100 transition-colors"
+            >
+              <FileDown className="w-5 h-5" />
+              Export CSV
+            </button>
+          )}
+          <button
+            onClick={() => setIsAddingJob(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+            Add New Job
+          </button>
+        </div>
       </div>
 
       {(isAddingJob || isEditingJob) && (
