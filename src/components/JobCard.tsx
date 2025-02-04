@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { Job } from '../types/job';
-import { MapPin, Calendar, Building2, DollarSign, Video, ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react';
+import { 
+  MapPin, Calendar, Building2, DollarSign, Video, ChevronDown, ChevronUp, Pencil, Trash2, Clock
+} from 'lucide-react';
 
 interface JobCardProps {
   job: Job;
@@ -84,6 +86,11 @@ export default function JobCard({ job, onEdit, onDelete }: JobCardProps) {
               <div className="flex items-center text-gray-600 text-sm">
                 <Video className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
                 <span>{normalizeValue(job.interviewType)} Interview</span>
+              </div>
+
+              <div className="flex items-center text-gray-600 text-sm">
+                <Clock className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
+                <span>{job.noticePeriod} {job.noticePeriod === 1 ? 'month' : 'months'} notice</span>
               </div>
             </div>
 

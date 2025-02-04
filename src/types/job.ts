@@ -11,6 +11,7 @@ export interface Job {
   interviewType: string;
   isActive: boolean;
   isActivelyHiring: boolean;
+  noticePeriod: number; // Added notice period field
 }
 
 export const departments = [

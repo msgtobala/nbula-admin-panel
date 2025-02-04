@@ -215,6 +215,19 @@ export default function JobForm({ onSubmit, onCancel, initialData }: JobFormProp
               </div>
 
               <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-gray-700">Notice Period (months)</label>
+                <input
+                  type="number"
+                  {...register('noticePeriod', { required: 'Notice period is required', min: 0 })}
+                  className={inputClassName}
+                  placeholder="e.g., 2"
+                />
+                {errors.noticePeriod && (
+                  <p className="text-sm text-red-600">{errors.noticePeriod.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-gray-700">Interview Type</label>
                 <Controller
                   name="interviewType"

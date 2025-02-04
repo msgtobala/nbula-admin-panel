@@ -41,7 +41,6 @@ export default function JobListings() {
 
   const handleAddJob = async (jobData: Partial<Job>) => {
     try {
-      // Ensure all required fields are present and properly formatted
       const formattedData = {
         title: jobData.title || '',
         experience: Number(jobData.experience) || 0,
@@ -50,6 +49,7 @@ export default function JobListings() {
         datePosted: Timestamp.fromDate(new Date()),
         department: jobData.department || '',
         salary: Number(jobData.salary) || 0,
+        noticePeriod: Number(jobData.noticePeriod) || 0,
         skills: (jobData.skills || []).map(skill => 
           typeof skill === 'object' ? skill.value : skill
         ),
@@ -74,7 +74,6 @@ export default function JobListings() {
     if (!selectedJob) return;
     
     try {
-      // Ensure all fields are properly formatted
       const formattedData = {
         title: jobData.title || selectedJob.title,
         experience: Number(jobData.experience) || selectedJob.experience,
@@ -82,6 +81,7 @@ export default function JobListings() {
         description: jobData.description || selectedJob.description,
         department: jobData.department || selectedJob.department,
         salary: Number(jobData.salary) || selectedJob.salary,
+        noticePeriod: Number(jobData.noticePeriod) || selectedJob.noticePeriod,
         skills: (jobData.skills || []).map(skill => 
           typeof skill === 'object' ? skill.value : skill
         ),
